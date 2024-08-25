@@ -1,56 +1,31 @@
-const mongoose = require('mongoose'); // load mongoose pacakge
+const express = require('express');
+const Eventmitter = require("events");
+const app = express();
 
-mongoose.connect("mongodb://localhost:27017/e-comm"); // connect to database
+// create event
+const event = new Eventmitter();
 
-const ProductSchema = new mongoose.Schema({
-    name: String,
-    price: Number,
-    brand: String,
-    category: String
+let count = 0;
+
+event.on("countAPI", () => {
+    count++;
+    console.log("Event Called", count);
+    
+})
+
+app.get("/", (req, resp) => {
+    resp.send("api called");
+    event.emit("countAPI");
 });
 
-// insert data
-const saveInDb =  async () => {
-        const ProductsModel = mongoose.model('products', ProductSchema);
-            let data = new ProductsModel({
-                name: 'm8', 
-                price: '1200',
-                brand: 'redmi',
-                category: 'mobile'
-            });
-            let result = await data.save();
-            console.log(result);
-}
+app.get("/search", (req, resp) => {
+    resp.send("search api called");
+    event.emit("countAPI");
+});
 
-// saveInDB();
+app.get("/update", (req, resp) => {
+    resp.send("update api called");
+    event.emit("countAPI");
+});
 
-// update data
-const updateInDb = async() => {
-    const Product = mongoose.model('products', ProductSchema);
-    let data = await Product.updateOne(
-        {name: 'm8'},
-        {
-            $set: {price: 700}
-        }
-    )
-    console.log(data);
-}
-// updateInDb();
-
-// delete data
-const deleteInDB = async () => {
-    const Product = mongoose.model('product', ProductSchema);
-    let data = await Product.deleteOne(
-        {name:'m8'}
-    );
-    console.log(data);
-}
-// deleteInDB();
-
-// read data
-const findInDb = async() => {
-    const Product = mongoose.model('product', ProductSchema);
-    let data = await Product.find();  // find individual value use curly braces in find function and set the value you ca find
-    console.log(data);
-}
-findInDb();
+app.listen(5000);
